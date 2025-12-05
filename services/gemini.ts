@@ -60,10 +60,11 @@ export const getConstructionAdvice = async (query: string, category: SearchCateg
   try {
     // Lazy initialization: Check key availability inside the function call.
     // This allows the app to load UI even if env vars are missing on the VPS initially.
-    const apiKey = process.env.API_KEY;
+    // UPDATE: Using GEMINI_API_KEY as per configuration
+    const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-        throw new Error("A API Key da Gemini não foi encontrada. Verifique o ficheiro .env no seu servidor Hostinger.");
+        throw new Error("A chave GEMINI_API_KEY não foi encontrada. Verifique as Variáveis de Ambiente no seu servidor (Coolify/Hostinger).");
     }
 
     const ai = new GoogleGenAI({ apiKey: apiKey });
@@ -129,7 +130,7 @@ export const getConstructionAdvice = async (query: string, category: SearchCateg
   } catch (error) {
     console.error("Gemini Service Error:", error);
     return {
-      text: `### Erro na Pesquisa\n\n${(error as any).message || 'Ocorreu um erro inesperado.'}\n\nSe estiver a configurar no Hostinger, certifique-se que o ficheiro .env está na raiz e a variável API_KEY está definida.`,
+      text: `### Erro na Pesquisa\n\n${(error as any).message || 'Ocorreu um erro inesperado.'}\n\nSe estiver a configurar no Hostinger/Coolify, certifique-se que a variável **GEMINI_API_KEY** está definida nas configurações.`,
       groundingMetadata: undefined
     };
   }

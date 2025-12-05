@@ -9,9 +9,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Isto permite que 'process.env.API_KEY' funcione no código do cliente
-      // Substituindo-o pelo valor real durante o build/dev
-      'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      // Isto permite que 'process.env.GEMINI_API_KEY' funcione no código do cliente
+      // Substituindo-o pelo valor real durante o build/dev vindo do servidor (Coolify)
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       // Fallback seguro para evitar erros de 'process is not defined' no browser
       'process.env': {} 
     }
