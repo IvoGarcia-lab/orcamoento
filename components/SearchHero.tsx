@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, ArrowRight, Loader2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, ArrowRight, Loader2, Trello, Package, Users } from 'lucide-react';
 import { SearchCategory } from '../types';
 
 interface SearchHeroProps {
@@ -11,26 +11,19 @@ interface SearchHeroProps {
 const SearchHero: React.FC<SearchHeroProps> = ({ onSearch, isLoading, activeCategory }) => {
   const [inputValue, setInputValue] = useState('');
 
-  // Update placeholder based on category
   const getPlaceholder = () => {
     switch (activeCategory) {
-      case 'materiais':
-        return "Ex: Preço de telha lusa da Robbialac ou tijolo térmico...";
-      case 'empresas':
-        return "Ex: Empresas de construção civil em Braga especializadas em remodelação...";
-      default:
-        return "Ex: Qual a melhor solução para isolamento térmico em Lisboa?";
+      case 'materiais': return "Ex: Tijolo térmico 30x20x15...";
+      case 'empresas': return "Ex: Empreiteiro em Lisboa...";
+      default: return "Ex: Isolamento acústico parede meeira...";
     }
   };
 
   const getTitle = () => {
      switch (activeCategory) {
-      case 'materiais':
-        return <>Preços reais de <span className="gradient-text">Materiais</span> em Portugal</>;
-      case 'empresas':
-        return <>Encontre <span className="gradient-text">Empresas</span> de confiança</>;
-      default:
-        return <>As melhores soluções construtivas em <span className="gradient-text">Portugal</span></>;
+      case 'materiais': return "Base de Dados de Materiais";
+      case 'empresas': return "Diretório Técnico";
+      default: return "Consultoria Técnica IA";
     }
   };
 
@@ -42,70 +35,70 @@ const SearchHero: React.FC<SearchHeroProps> = ({ onSearch, isLoading, activeCate
   };
 
   return (
-    <div className="relative overflow-hidden bg-white py-16 lg:py-24 transition-all duration-500">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none opacity-30">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-blue-100 blur-[100px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-orange-50 blur-[120px]" />
-      </div>
-
-      <div className="container mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6 max-w-4xl mx-auto leading-tight min-h-[3.5rem]">
-          {getTitle()}
-        </h1>
-        <p className="text-lg text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-          {activeCategory === 'materiais' 
-            ? 'Consulte marcas, compare preços de catálogo e encontre fornecedores nacionais.'
-            : activeCategory === 'empresas'
-            ? 'Pesquise empreiteiros, arquitetos e engenheiros avaliados na sua zona.'
-            : 'Inteligência artificial especializada no Regulamento Geral das Edificações Urbanas (RGEU) e normas portuguesas.'}
-        </p>
-
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto relative group z-10">
-          <div className="absolute inset-0 bg-blue-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-          <div className="relative flex items-center bg-white rounded-2xl shadow-xl border border-slate-100 p-2 transition-all focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500">
-            <Search className="ml-4 text-slate-400" size={24} />
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={getPlaceholder()}
-              className="w-full bg-transparent border-none outline-none px-4 py-3 text-slate-700 placeholder-slate-400 text-lg select-text"
-              disabled={isLoading}
-              autoFocus
-            />
-            <button
-              type="submit"
-              disabled={isLoading || !inputValue.trim()}
-              className="bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-600/20"
-            >
-              {isLoading ? <Loader2 className="animate-spin" size={24} /> : <ArrowRight size={24} />}
-            </button>
+    <div className="relative py-20 lg:py-32 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 transition-colors duration-300">
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs font-mono text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+            Sistema RGEU Compatível v2.0
           </div>
-        </form>
+          
+          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 dark:text-white tracking-tight mb-6 font-sans">
+            {getTitle()}
+          </h1>
+          
+          <p className="text-lg text-slate-500 dark:text-slate-400 mb-12 max-w-xl mx-auto font-light leading-relaxed">
+            Plataforma de inteligência artificial para análise de normas construtivas, 
+            orçamentação de materiais e validação de empresas em Portugal.
+          </p>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm text-slate-500">
-          {activeCategory === 'solucoes' && (
-            <>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">🏠 Renovação</span>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">🏗️ Estruturas</span>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">⚡ Eficiência</span>
-            </>
-          )}
-          {activeCategory === 'materiais' && (
-            <>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">🧱 Tijolo & Cerâmica</span>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">🎨 Tintas</span>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">🪵 Madeiras</span>
-            </>
-          )}
-           {activeCategory === 'empresas' && (
-            <>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">👷 Empreiteiros</span>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">📐 Arquitetos</span>
-              <span className="px-3 py-1 bg-slate-100 rounded-full border border-slate-200">🔧 Canalizadores</span>
-            </>
-          )}
+          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-800 dark:to-slate-700 opacity-50 blur transition duration-200 group-hover:opacity-75"></div>
+              <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-1 shadow-sm focus-within:border-slate-500 focus-within:ring-1 focus-within:ring-slate-500 dark:focus-within:border-blue-500 dark:focus-within:ring-blue-500 transition-all">
+                <div className="pl-4 pr-2 text-slate-400">
+                  <Search size={20} strokeWidth={2} />
+                </div>
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder={getPlaceholder()}
+                  className="w-full bg-transparent border-none outline-none py-4 text-slate-900 dark:text-white placeholder-slate-400 text-lg font-medium"
+                  disabled={isLoading}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !inputValue.trim()}
+                  className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-3 hover:bg-blue-600 dark:hover:bg-blue-400 disabled:bg-slate-100 disabled:text-slate-300 dark:disabled:bg-slate-800 dark:disabled:text-slate-600 transition-colors rounded-none min-w-[3rem] flex items-center justify-center"
+                >
+                  {isLoading ? <Loader2 className="animate-spin" size={20} /> : <ArrowRight size={20} />}
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div className="mt-12 flex justify-center gap-8 border-t border-slate-100 dark:border-slate-800 pt-8">
+            <div className="flex flex-col items-center gap-2 group cursor-default">
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white group-hover:border-slate-400 dark:group-hover:border-slate-600 transition-all">
+                <Trello size={20} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300">Normas</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 group cursor-default">
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white group-hover:border-slate-400 dark:group-hover:border-slate-600 transition-all">
+                <Package size={20} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300">Materiais</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 group cursor-default">
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white group-hover:border-slate-400 dark:group-hover:border-slate-600 transition-all">
+                <Users size={20} strokeWidth={1.5} />
+              </div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300">Empresas</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

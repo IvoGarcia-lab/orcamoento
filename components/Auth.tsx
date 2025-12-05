@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader2, Lock, Mail, HardHat, ArrowRight } from 'lucide-react';
+import { Loader2, HardHat, ArrowRight } from 'lucide-react';
 
 const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -16,119 +16,83 @@ const Auth: React.FC = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
+        const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        setMessage({ type: 'success', text: 'Registo efetuado! Verifique o seu email para confirmar a conta.' });
+        setMessage({ type: 'success', text: 'Registo efetuado! Verifique o seu email.' });
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Ocorreu um erro. Verifique os dados.' });
+      setMessage({ type: 'error', text: error.message });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 font-sans relative overflow-hidden">
-      {/* Background decoration consistent with SearchHero */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none opacity-40">
-        <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] rounded-full bg-blue-100 blur-[80px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-orange-50 blur-[100px]" />
-      </div>
-
-      <div className="max-w-md w-full bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 overflow-hidden relative z-10">
-        
-        {/* Header Brand */}
-        <div className="pt-8 pb-4 text-center">
-           <div className="inline-flex items-center justify-center p-3 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-600/30 mb-4">
-              <HardHat size={32} />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-black transition-colors duration-300">
+      <div className="max-w-sm w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+        <div className="mb-8 text-center">
+           <div className="inline-block p-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 mb-4">
+              <HardHat size={24} strokeWidth={1.5} />
            </div>
-           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-             Construtec<span className="text-blue-600">PT</span>
-           </h1>
-           <p className="text-slate-500 text-sm mt-1">Plataforma Inteligente de Construção</p>
+           <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">ACESSO TÉCNICO</h1>
+           <p className="text-xs font-mono text-slate-400 dark:text-slate-500 mt-2 uppercase tracking-widest">Plataforma Construtec PT</p>
         </div>
-        
-        <div className="p-8 pt-2">
-          <div className="flex items-center justify-center gap-1 mb-6 text-sm bg-slate-100 p-1 rounded-lg">
-             <button 
-               onClick={() => { setIsLogin(true); setMessage(null); }}
-               className={`flex-1 py-1.5 rounded-md font-medium transition-all ${isLogin ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-             >
-               Entrar
-             </button>
-             <button 
-               onClick={() => { setIsLogin(false); setMessage(null); }}
-               className={`flex-1 py-1.5 rounded-md font-medium transition-all ${!isLogin ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-             >
-               Criar Conta
-             </button>
+
+        {message && (
+          <div className={`p-3 mb-6 text-xs font-mono border ${message.type === 'error' ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border-red-100 dark:border-red-900' : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border-green-100 dark:border-green-900'}`}>
+            {message.text}
+          </div>
+        )}
+
+        <form onSubmit={handleAuth} className="space-y-4">
+          <div>
+            <label className="block text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-1">Email Profissional</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700 py-2 px-3 text-sm focus:outline-none focus:border-slate-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-800 transition-colors placeholder-slate-400 dark:placeholder-slate-600 dark:text-white"
+              placeholder="user@empresa.com"
+            />
           </div>
 
-          {message && (
-            <div className={`p-4 rounded-xl mb-6 text-sm flex items-start gap-2 border ${message.type === 'error' ? 'bg-red-50 text-red-700 border-red-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
-              <div className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${message.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`} />
-              {message.text}
-            </div>
-          )}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-1">Palavra-passe</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-slate-50 dark:bg-slate-900 border-b border-slate-300 dark:border-slate-700 py-2 px-3 text-sm focus:outline-none focus:border-slate-900 dark:focus:border-white focus:bg-white dark:focus:bg-slate-800 transition-colors dark:text-white"
+              placeholder="••••••"
+            />
+          </div>
 
-          <form onSubmit={handleAuth} className="space-y-5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Email Profissional</label>
-              <div className="relative group">
-                <Mail className="absolute left-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder-slate-400 text-slate-700"
-                  placeholder="nome@empresa.pt"
-                />
-              </div>
-            </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-slate-900 dark:bg-white hover:bg-blue-600 dark:hover:bg-blue-400 text-white dark:text-slate-900 font-medium py-3 text-sm transition-colors flex items-center justify-center gap-2 mt-6"
+          >
+            {loading ? <Loader2 className="animate-spin" size={16} /> : (
+              <>
+                {isLogin ? 'ENTRAR NO SISTEMA' : 'REGISTAR CONTA'}
+                <ArrowRight size={16} />
+              </>
+            )}
+          </button>
+        </form>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">Palavra-passe</label>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-3 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder-slate-400 text-slate-700"
-                  placeholder="••••••••"
-                  minLength={6}
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 active:scale-[0.98]"
-            >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : (
-                <>
-                  {isLogin ? 'Iniciar Sessão' : 'Começar Agora'}
-                  {!loading && <ArrowRight size={18} />}
-                </>
-              )}
-            </button>
-          </form>
-          
-          <p className="mt-6 text-center text-xs text-slate-400">
-            Protegido por Supabase Auth & RLS Security
-          </p>
+        <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+          <button 
+            onClick={() => { setIsLogin(!isLogin); setMessage(null); }}
+            className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white underline underline-offset-4"
+          >
+            {isLogin ? 'Não tem conta? Criar registo' : 'Já tem conta? Iniciar sessão'}
+          </button>
         </div>
       </div>
     </div>

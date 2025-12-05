@@ -3,36 +3,30 @@ import { ShieldCheck, Zap, Globe2 } from 'lucide-react';
 
 const Features: React.FC = () => {
   return (
-    <section className="py-20 bg-slate-50 border-t border-slate-200">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 mb-6">
-              <ShieldCheck size={28} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Normas Portuguesas</h3>
-            <p className="text-slate-600 leading-relaxed">
-              Todas as recomendações seguem os regulamentos de construção em vigor em Portugal (RGEU, REH).
+    <section className="py-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 transition-colors duration-300">
+      <div className="container mx-auto px-6">
+        <div className="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-800 border border-slate-100 dark:border-slate-800">
+          <div className="p-8 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors group">
+            <ShieldCheck size={32} strokeWidth={1} className="text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white mb-4 transition-colors" />
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Normativa RGEU</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+              Conformidade rigorosa com o Regulamento Geral das Edificações Urbanas e legislação nacional.
             </p>
           </div>
           
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-6">
-              <Zap size={28} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Orçamentos Inteligentes</h3>
-            <p className="text-slate-600 leading-relaxed">
-              Analise custos-benefícios de materiais como capoto, cortiça ou cerâmicas nacionais.
+          <div className="p-8 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors group">
+            <Zap size={32} strokeWidth={1} className="text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white mb-4 transition-colors" />
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Análise de Custo</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+              Algoritmos de comparação para materiais de construção, isolamentos e acabamentos.
             </p>
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 mb-6">
-              <Globe2 size={28} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-3">Sustentabilidade Local</h3>
-            <p className="text-slate-600 leading-relaxed">
-              Priorizamos materiais produzidos em Portugal para reduzir a pegada ecológica da sua obra.
+          <div className="p-8 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors group">
+            <Globe2 size={32} strokeWidth={1} className="text-slate-400 dark:text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white mb-4 transition-colors" />
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Indústria Nacional</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+              Base de dados focada em fornecedores e fabricantes portugueses para redução da pegada de carbono.
             </p>
           </div>
         </div>

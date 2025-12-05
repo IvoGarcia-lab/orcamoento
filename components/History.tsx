@@ -99,18 +99,18 @@ const History: React.FC = () => {
     <div className="container mx-auto px-4 py-8 animate-fade-in-up">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <div className="bg-blue-100 p-2.5 rounded-xl text-blue-700">
+          <div className="bg-blue-100 dark:bg-blue-900 p-2.5 rounded-xl text-blue-700 dark:text-blue-300">
             <Clock size={24} />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900">Histórico de Pesquisas</h1>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Histórico de Pesquisas</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* Lista de Sessões (Sidebar) */}
-          <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden sticky top-24 max-h-[80vh] overflow-y-auto">
-            <div className="p-4 border-b border-slate-100 bg-slate-50">
-              <h2 className="font-semibold text-slate-700 flex items-center gap-2">
+          <div className="lg:col-span-1 bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden sticky top-24 max-h-[80vh] overflow-y-auto">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+              <h2 className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <Calendar size={18} /> Consultas Anteriores
               </h2>
             </div>
@@ -120,26 +120,26 @@ const History: React.FC = () => {
                 <Loader2 className="animate-spin text-blue-500" />
               </div>
             ) : sessions.length === 0 ? (
-              <div className="p-8 text-center text-slate-500">
+              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
                 <SearchX size={32} className="mx-auto mb-2 opacity-50" />
                 <p>Ainda não tem histórico.</p>
               </div>
             ) : (
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {sessions.map((session) => (
                   <button
                     key={session.id}
                     onClick={() => setSelectedSessionId(session.id)}
-                    className={`w-full text-left p-4 hover:bg-blue-50 transition-all group relative ${selectedSessionId === session.id ? 'bg-blue-50 border-l-4 border-blue-600' : 'border-l-4 border-transparent'}`}
+                    className={`w-full text-left p-4 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group relative ${selectedSessionId === session.id ? 'bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-600' : 'border-l-4 border-transparent'}`}
                   >
-                    <h3 className={`font-medium mb-1 line-clamp-2 ${selectedSessionId === session.id ? 'text-blue-800' : 'text-slate-800'}`}>
+                    <h3 className={`font-medium mb-1 line-clamp-2 ${selectedSessionId === session.id ? 'text-blue-800 dark:text-blue-300' : 'text-slate-800 dark:text-slate-200'}`}>
                       {session.title || "Pesquisa sem título"}
                     </h3>
                     <div className="flex items-center justify-between mt-2">
-                       <span className="text-xs text-slate-400 font-medium">
+                       <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                         {formatDate(session.created_at)}
                        </span>
-                       <ChevronRight size={16} className={`text-slate-300 group-hover:text-blue-400 transition-colors ${selectedSessionId === session.id ? 'text-blue-500' : ''}`} />
+                       <ChevronRight size={16} className={`text-slate-300 dark:text-slate-600 group-hover:text-blue-400 transition-colors ${selectedSessionId === session.id ? 'text-blue-500' : ''}`} />
                     </div>
                   </button>
                 ))}
@@ -151,9 +151,9 @@ const History: React.FC = () => {
           <div className="lg:col-span-2">
             {selectedSessionId ? (
               loadingMessages ? (
-                <div className="bg-white rounded-2xl p-12 flex flex-col items-center justify-center shadow-sm border border-slate-200">
-                   <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
-                   <p className="text-slate-500">A carregar detalhes da consulta...</p>
+                <div className="bg-white dark:bg-slate-950 rounded-2xl p-12 flex flex-col items-center justify-center shadow-sm border border-slate-200 dark:border-slate-800">
+                   <Loader2 className="animate-spin text-blue-600" size={32} />
+                   <p className="text-slate-500 dark:text-slate-400 mt-4">A carregar detalhes da consulta...</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -173,12 +173,12 @@ const History: React.FC = () => {
                 </div>
               )
             ) : (
-              <div className="bg-slate-50 rounded-2xl p-12 border-2 border-dashed border-slate-200 text-center flex flex-col items-center justify-center min-h-[400px]">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 text-slate-400">
+              <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-12 border-2 border-dashed border-slate-200 dark:border-slate-800 text-center flex flex-col items-center justify-center min-h-[400px]">
+                <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-sm mb-4 text-slate-400 dark:text-slate-500">
                   <MessageSquare size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-2">Selecione uma pesquisa</h3>
-                <p className="text-slate-500 max-w-md">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Selecione uma pesquisa</h3>
+                <p className="text-slate-500 dark:text-slate-400 max-w-md">
                   Clique numa sessão à esquerda para ver os detalhes, preços e empresas que pesquisou anteriormente.
                 </p>
               </div>

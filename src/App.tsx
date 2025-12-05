@@ -16,8 +16,30 @@ const App: React.FC = () => {
   const [currentMessage, setCurrentMessage] = useState<Message | null>(null);
   const [activeCategory, setActiveCategory] = useState<SearchCategory>('solucoes');
   const [currentView, setCurrentView] = useState<ViewMode>('search');
+  
+  // Theme Management
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ? 'dark'
+        : 'light';
+    }
+    return 'light';
+  });
 
-  // Verificar autenticação ao iniciar
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+
   useEffect(() => {
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
@@ -25,8 +47,6 @@ const App: React.FC = () => {
       })
       .catch((err) => {
         console.error("Erro ao verificar sessão inicial:", err);
-        // Não bloqueia a app, apenas loga o erro. 
-        // O utilizador verá o ecrã de Auth se a sessão for nula.
       });
 
     const {
@@ -42,27 +62,24 @@ const App: React.FC = () => {
     if (!session?.user?.id) return;
 
     try {
-      // 1. Criar Sessão
       const { data: dbSession, error: sessionError } = await supabase
         .from('sessions')
         .insert({
           user_id: session.user.id,
           title: query,
-          status: 'closed' // Consideramos fechada após a resposta neste modelo de search
+          status: 'closed'
         })
         .select()
         .single();
 
       if (sessionError || !dbSession) throw sessionError;
 
-      // 2. Guardar Mensagem do User
       await supabase.from('messages').insert({
         session_id: dbSession.id,
         role: 'user',
         content: query
       });
 
-      // 3. Guardar Resposta da IA (Seja texto ou JSON stringificado)
       const aiContent = result.structuredData 
         ? JSON.stringify(result.structuredData) 
         : result.text;
@@ -94,14 +111,12 @@ const App: React.FC = () => {
     try {
       const result = await getConstructionAdvice(enrichedQuery, activeCategory);
       
-      // Persistir no Supabase em background
       saveInteractionToSupabase(query, result, activeCategory);
 
       const sources = result.groundingMetadata?.groundingChunks
         ?.map(chunk => chunk.web ? { title: chunk.web.title, url: chunk.web.uri } : null)
         .filter((item): item is { title: string; url: string } => item !== null) || [];
 
-      // Determine message structure based on result type
       const newMessage: Message = {
         role: 'model',
         sources: sources,
@@ -130,7 +145,6 @@ const App: React.FC = () => {
 
   const handleCategoryChange = (category: SearchCategory) => {
     setActiveCategory(category);
-    // Se estiver no histórico, volta para pesquisa ao mudar categoria
     if (currentView === 'history') setCurrentView('search');
     
     if (loadingState === LoadingState.SUCCESS || currentMessage) {
@@ -147,20 +161,19 @@ const App: React.FC = () => {
     await supabase.auth.signOut();
   };
 
-  // Se não houver sessão, mostrar ecrã de Auth
   if (!session) {
     return <Auth />;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none">
-      <div className="bg-slate-900 text-slate-300 text-xs py-1 px-4 flex justify-between items-center">
+    <div className="min-h-screen flex flex-col font-sans select-none transition-colors duration-300">
+      <div className="bg-slate-900 dark:bg-black border-b border-slate-800 text-slate-400 text-[10px] font-mono py-1 px-6 flex justify-between items-center uppercase tracking-wider">
         <div className="flex items-center gap-2">
             <User size={12} /> 
             <span>{session.user.email}</span>
         </div>
-        <button onClick={handleLogout} className="hover:text-white flex items-center gap-1">
-            <LogOut size={12} /> Sair
+        <button onClick={handleLogout} className="hover:text-white flex items-center gap-1 transition-colors">
+            <LogOut size={12} /> SAIR
         </button>
       </div>
 
@@ -169,6 +182,8 @@ const App: React.FC = () => {
         onCategoryChange={handleCategoryChange}
         currentView={currentView}
         onViewChange={handleViewChange}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
       
       <main className="flex-grow">
@@ -182,21 +197,14 @@ const App: React.FC = () => {
               activeCategory={activeCategory}
             />
 
-            <div className="container mx-auto px-4 -mt-10 mb-20 relative z-10">
+            <div className="container mx-auto px-6 -mt-10 mb-20 relative z-10">
               {loadingState === LoadingState.LOADING && (
-                <div className="flex flex-col items-center justify-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-xl">
+                <div className="flex flex-col items-center justify-center py-24 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-sm max-w-2xl mx-auto rounded-xl">
                    <div className="relative">
-                     <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-                     <div className="absolute inset-0 flex items-center justify-center text-blue-600">
-                       <span className="text-xs font-bold">AI</span>
-                     </div>
+                     <div className="w-12 h-12 border-2 border-slate-100 dark:border-slate-800 border-t-slate-900 dark:border-t-blue-500 rounded-full animate-spin"></div>
                    </div>
-                   <p className="mt-6 text-slate-600 font-medium animate-pulse text-center max-w-md">
-                     {activeCategory === 'materiais' 
-                       ? 'A recolher preços e a organizar tabela...' 
-                       : activeCategory === 'empresas' 
-                         ? 'A compilar lista abrangente de profissionais...' 
-                         : 'A analisar normas e redigir solução...'}
+                   <p className="mt-6 text-slate-500 dark:text-slate-400 text-sm font-mono uppercase tracking-widest animate-pulse">
+                     Processamento Técnico em Curso...
                    </p>
                 </div>
               )}
@@ -213,9 +221,9 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t border-slate-200 py-12">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-slate-400 text-sm">
+      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 transition-colors duration-300">
+        <div className="container mx-auto px-6 text-center">
+          <p className="text-slate-400 dark:text-slate-600 text-xs font-mono uppercase tracking-widest">
             © {new Date().getFullYear()} Construtec Portugal. Powered by Gemini & Supabase.
           </p>
         </div>
