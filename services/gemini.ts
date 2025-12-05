@@ -1,5 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { SearchResult, SearchCategory } from "../types";
+
+declare const __GEMINI_API_KEY__: string;
 
 const getSystemInstruction = (category: SearchCategory) => {
   const baseInstruction = `Você é um consultor sênior de construção civil em Portugal.`;
@@ -58,10 +60,9 @@ const getSystemInstruction = (category: SearchCategory) => {
 
 export const getConstructionAdvice = async (query: string, category: SearchCategory): Promise<SearchResult> => {
   try {
-    // Lazy initialization: Check key availability inside the function call.
-    // This allows the app to load UI even if env vars are missing on the VPS initially.
-    // UPDATE: Using GEMINI_API_KEY as per configuration
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Usar a variável global injetada pelo Vite (__GEMINI_API_KEY__)
+    // Fallback para process.env apenas por compatibilidade
+    const apiKey = typeof __GEMINI_API_KEY__ !== 'undefined' ? __GEMINI_API_KEY__ : process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
         throw new Error("A chave GEMINI_API_KEY não foi encontrada. Verifique as Variáveis de Ambiente no seu servidor (Coolify/Hostinger).");
@@ -69,9 +70,6 @@ export const getConstructionAdvice = async (query: string, category: SearchCateg
 
     const ai = new GoogleGenAI({ apiKey: apiKey });
     const model = 'gemini-2.5-flash';
-    
-    // NOTA: Removemos responseMimeType e responseSchema da configuração
-    // porque atualmente são incompatíveis com tools: [{ googleSearch: {} }]
     
     const apiCall = ai.models.generateContent({
       model: model,
@@ -83,12 +81,11 @@ export const getConstructionAdvice = async (query: string, category: SearchCateg
       },
     });
 
-    // Timeout race to prevent hanging - Increased to 60s for comprehensive searches
     const timeoutPromise = new Promise<never>((_, reject) => 
         setTimeout(() => reject(new Error("A pesquisa excedeu o tempo limite (60s). Tente ser mais específico.")), 60000)
     );
 
-    const response = await Promise.race([apiCall, timeoutPromise]) as any;
+    const response = await Promise.race([apiCall, timeoutPromise]) as GenerateContentResponse;
 
     if (!response || !response.text) {
          throw new Error("Resposta vazia da IA.");
@@ -100,10 +97,7 @@ export const getConstructionAdvice = async (query: string, category: SearchCateg
     // Manual JSON Parsing logic
     if (category === 'materiais' || category === 'empresas') {
       try {
-        // Limpar possíveis formatações markdown que o modelo possa adicionar
         let cleanText = response.text.replace(/```json\n?/g, '').replace(/```/g, '').trim();
-        
-        // Tentar encontrar o array JSON se houver texto à volta
         const firstBracket = cleanText.indexOf('[');
         const lastBracket = cleanText.lastIndexOf(']');
         
@@ -112,11 +106,9 @@ export const getConstructionAdvice = async (query: string, category: SearchCateg
         }
 
         structuredData = JSON.parse(cleanText);
-        textResult = ""; // Se tivermos dados estruturados, limpamos o texto para evitar duplicação na UI
+        textResult = ""; 
       } catch (e) {
         console.error("Erro ao fazer parse do JSON manual:", e);
-        console.log("Texto recebido:", response.text);
-        // Fallback: mantemos o textResult original, a UI vai renderizar como markdown (provavelmente a tabela quebrada ou texto)
         textResult = response.text; 
       }
     }

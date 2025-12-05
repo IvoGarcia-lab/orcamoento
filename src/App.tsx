@@ -19,9 +19,15 @@ const App: React.FC = () => {
 
   // Verificar autenticação ao iniciar
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+      })
+      .catch((err) => {
+        console.error("Erro ao verificar sessão inicial:", err);
+        // Não bloqueia a app, apenas loga o erro. 
+        // O utilizador verá o ecrã de Auth se a sessão for nula.
+      });
 
     const {
       data: { subscription },

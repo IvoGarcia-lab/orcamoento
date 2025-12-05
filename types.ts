@@ -1,3 +1,4 @@
+
 export interface SearchResult {
   text?: string;
   structuredData?: MaterialItem[] | CompanyItem[];
@@ -39,6 +40,13 @@ export interface Message {
   }>;
 }
 
+export interface DbSession {
+  id: string;
+  title: string;
+  created_at: string;
+  status: string;
+}
+
 export enum LoadingState {
   IDLE = 'IDLE',
   LOADING = 'LOADING',
@@ -47,3 +55,4 @@ export enum LoadingState {
 }
 
 export type SearchCategory = 'solucoes' | 'materiais' | 'empresas';
+export type ViewMode = 'search' | 'history';
