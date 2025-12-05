@@ -70,7 +70,7 @@ const SearchHero: React.FC<SearchHeroProps> = ({ onSearch, isLoading, activeCate
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder={getPlaceholder()}
-              className="w-full bg-transparent border-none outline-none px-4 py-3 text-slate-700 placeholder-slate-400 text-lg"
+              className="w-full bg-transparent border-none outline-none px-4 py-3 text-slate-700 placeholder-slate-400 text-lg select-text"
               disabled={isLoading}
               autoFocus
             />
