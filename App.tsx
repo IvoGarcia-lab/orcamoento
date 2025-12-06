@@ -17,6 +17,33 @@ const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<SearchCategory>('solucoes');
   const [currentView, setCurrentView] = useState<ViewMode>('search');
 
+  // Robust Theme Management
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // Check local storage first, then system preference
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark') return 'dark';
+      if (stored === 'light') return 'light';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+
+  // Apply theme to document
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
   // Verificar autenticação ao iniciar
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -147,13 +174,13 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none">
-      <div className="bg-slate-900 text-slate-300 text-xs py-1 px-4 flex justify-between items-center">
+    <div className="min-h-screen bg-slate-50 dark:bg-black flex flex-col font-sans select-none transition-colors duration-300">
+      <div className="bg-slate-900 dark:bg-slate-950 text-slate-300 text-[10px] font-mono py-1 px-4 flex justify-between items-center no-print border-b border-slate-800">
         <div className="flex items-center gap-2">
             <User size={12} /> 
             <span>{session.user.email}</span>
         </div>
-        <button onClick={handleLogout} className="hover:text-white flex items-center gap-1">
+        <button onClick={handleLogout} className="hover:text-white flex items-center gap-1 transition-colors">
             <LogOut size={12} /> Sair
         </button>
       </div>
@@ -163,6 +190,8 @@ const App: React.FC = () => {
         onCategoryChange={handleCategoryChange}
         currentView={currentView}
         onViewChange={handleViewChange}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
       
       <main className="flex-grow">
@@ -170,22 +199,24 @@ const App: React.FC = () => {
           <History />
         ) : (
           <>
-            <SearchHero 
-              onSearch={handleSearch} 
-              isLoading={loadingState === LoadingState.LOADING} 
-              activeCategory={activeCategory}
-            />
+            <div className="no-print">
+              <SearchHero 
+                onSearch={handleSearch} 
+                isLoading={loadingState === LoadingState.LOADING} 
+                activeCategory={activeCategory}
+              />
+            </div>
 
             <div className="container mx-auto px-4 -mt-10 mb-20 relative z-10">
               {loadingState === LoadingState.LOADING && (
-                <div className="flex flex-col items-center justify-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-xl">
+                <div className="flex flex-col items-center justify-center py-20 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
                    <div className="relative">
-                     <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-                     <div className="absolute inset-0 flex items-center justify-center text-blue-600">
+                     <div className="w-16 h-16 border-4 border-blue-100 dark:border-blue-900 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"></div>
+                     <div className="absolute inset-0 flex items-center justify-center text-blue-600 dark:text-blue-400">
                        <span className="text-xs font-bold">AI</span>
                      </div>
                    </div>
-                   <p className="mt-6 text-slate-600 font-medium animate-pulse text-center max-w-md">
+                   <p className="mt-6 text-slate-600 dark:text-slate-400 font-medium animate-pulse text-center max-w-md">
                      {activeCategory === 'materiais' 
                        ? 'A recolher preços e a organizar tabela...' 
                        : activeCategory === 'empresas' 
@@ -200,16 +231,18 @@ const App: React.FC = () => {
               )}
 
               {loadingState === LoadingState.IDLE && (
-                <Features />
+                <div className="no-print">
+                  <Features />
+                </div>
               )}
             </div>
           </>
         )}
       </main>
 
-      <footer className="bg-white border-t border-slate-200 py-12">
+      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 transition-colors duration-300 no-print">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-400 dark:text-slate-600 text-sm font-mono">
             © {new Date().getFullYear()} Construtec Portugal. Powered by Gemini & Supabase.
           </p>
         </div>
