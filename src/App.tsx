@@ -17,28 +17,32 @@ const App: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<SearchCategory>('solucoes');
   const [currentView, setCurrentView] = useState<ViewMode>('search');
   
-  // Theme Management
+  // Robust Theme Management
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // Check local storage first, then system preference
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') === 'dark' ||
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ? 'dark'
-        : 'light';
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark') return 'dark';
+      if (stored === 'light') return 'light';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     return 'light';
   });
 
+  // Apply theme to document
   useEffect(() => {
+    const root = window.document.documentElement;
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      root.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      root.classList.remove('dark');
     }
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -167,7 +171,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col font-sans select-none transition-colors duration-300">
-      <div className="bg-slate-900 dark:bg-black border-b border-slate-800 text-slate-400 text-[10px] font-mono py-1 px-6 flex justify-between items-center uppercase tracking-wider">
+      <div className="bg-slate-900 dark:bg-black border-b border-slate-800 text-slate-400 text-[10px] font-mono py-1 px-6 flex justify-between items-center uppercase tracking-wider no-print">
         <div className="flex items-center gap-2">
             <User size={12} /> 
             <span>{session.user.email}</span>
@@ -191,11 +195,13 @@ const App: React.FC = () => {
           <History />
         ) : (
           <>
-            <SearchHero 
-              onSearch={handleSearch} 
-              isLoading={loadingState === LoadingState.LOADING} 
-              activeCategory={activeCategory}
-            />
+            <div className="no-print">
+              <SearchHero 
+                onSearch={handleSearch} 
+                isLoading={loadingState === LoadingState.LOADING} 
+                activeCategory={activeCategory}
+              />
+            </div>
 
             <div className="container mx-auto px-6 -mt-10 mb-20 relative z-10">
               {loadingState === LoadingState.LOADING && (
@@ -214,14 +220,16 @@ const App: React.FC = () => {
               )}
 
               {loadingState === LoadingState.IDLE && (
-                <Features />
+                <div className="no-print">
+                  <Features />
+                </div>
               )}
             </div>
           </>
         )}
       </main>
 
-      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 transition-colors duration-300">
+      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 transition-colors duration-300 no-print">
         <div className="container mx-auto px-6 text-center">
           <p className="text-slate-400 dark:text-slate-600 text-xs font-mono uppercase tracking-widest">
             © {new Date().getFullYear()} Construtec Portugal. Powered by Gemini & Supabase.

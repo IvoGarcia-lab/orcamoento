@@ -66,6 +66,69 @@
       html.dark ::-webkit-scrollbar-thumb:hover {
         background: #64748b;
       }
+
+      /* PRINT STYLES FOR PDF EXPORT */
+      @media print {
+        @page {
+          margin: 1.5cm;
+          size: A4;
+        }
+        
+        body {
+          background: white !important;
+          color: black !important;
+          background-image: none !important;
+        }
+
+        /* Hide UI elements */
+        header, 
+        footer, 
+        nav, 
+        button, 
+        input,
+        .no-print,
+        [role="button"] {
+          display: none !important;
+        }
+
+        /* Ensure content is visible and full width */
+        main, .container, .max-w-6xl, .max-w-5xl {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          border: none !important;
+        }
+
+        /* Force background printing for tables/cards */
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        /* Expand ResultCard */
+        .prose {
+          max-width: 100% !important;
+        }
+        
+        /* Hide History Sidebar */
+        .sidebar-history {
+          display: none !important;
+        }
+        
+        /* Expand History Details */
+        .details-history {
+          grid-column: span 3 !important;
+          width: 100% !important;
+        }
+        
+        /* Clean up links */
+        a {
+          text-decoration: none !important;
+          color: black !important;
+        }
+      }
     </style>
 <script type="importmap">
 {

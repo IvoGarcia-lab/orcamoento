@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { DbSession, Message } from '../types';
 import ResultCard from './ResultCard';
-import { Clock, Calendar, ChevronRight, Loader2, SearchX, MessageSquare } from 'lucide-react';
+import { Clock, Calendar, ChevronRight, Loader2, SearchX, MessageSquare, Trash2, FileDown } from 'lucide-react';
 
 const History: React.FC = () => {
   const [sessions, setSessions] = useState<DbSession[]>([]);
@@ -86,6 +86,29 @@ const History: React.FC = () => {
     }
   };
 
+  const handleDeleteSession = async (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
+    if (!confirm('Tem a certeza que deseja eliminar permanentemente este registo?')) return;
+
+    try {
+      const { error } = await supabase.from('sessions').delete().eq('id', sessionId);
+      if (error) throw error;
+      
+      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      if (selectedSessionId === sessionId) {
+        setSelectedSessionId(null);
+        setSessionMessages([]);
+      }
+    } catch (error) {
+      console.error('Erro ao eliminar sessão:', error);
+      alert('Não foi possível eliminar o registo.');
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-PT', {
       day: '2-digit',
@@ -98,17 +121,28 @@ const History: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in-up">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-blue-100 dark:bg-blue-900 p-2.5 rounded-xl text-blue-700 dark:text-blue-300">
-            <Clock size={24} />
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 dark:bg-blue-900 p-2.5 rounded-xl text-blue-700 dark:text-blue-300">
+              <Clock size={24} />
+            </div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Histórico de Pesquisas</h1>
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Histórico de Pesquisas</h1>
+          {selectedSessionId && !loadingMessages && (
+            <button 
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-300 transition-colors text-sm font-medium no-print"
+            >
+              <FileDown size={16} />
+              Exportar PDF
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
-          {/* Lista de Sessões (Sidebar) */}
-          <div className="lg:col-span-1 bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden sticky top-24 max-h-[80vh] overflow-y-auto">
+          {/* Lista de Sessões (Sidebar) - Hidden on Print */}
+          <div className="lg:col-span-1 bg-white dark:bg-slate-950 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden sticky top-24 max-h-[80vh] overflow-y-auto sidebar-history">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
               <h2 className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <Calendar size={18} /> Consultas Anteriores
@@ -127,28 +161,40 @@ const History: React.FC = () => {
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {sessions.map((session) => (
-                  <button
+                  <div
                     key={session.id}
                     onClick={() => setSelectedSessionId(session.id)}
-                    className={`w-full text-left p-4 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group relative ${selectedSessionId === session.id ? 'bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-600' : 'border-l-4 border-transparent'}`}
+                    className={`w-full text-left p-4 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group relative cursor-pointer flex justify-between items-start ${selectedSessionId === session.id ? 'bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-600' : 'border-l-4 border-transparent'}`}
                   >
-                    <h3 className={`font-medium mb-1 line-clamp-2 ${selectedSessionId === session.id ? 'text-blue-800 dark:text-blue-300' : 'text-slate-800 dark:text-slate-200'}`}>
-                      {session.title || "Pesquisa sem título"}
-                    </h3>
-                    <div className="flex items-center justify-between mt-2">
-                       <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
-                        {formatDate(session.created_at)}
-                       </span>
-                       <ChevronRight size={16} className={`text-slate-300 dark:text-slate-600 group-hover:text-blue-400 transition-colors ${selectedSessionId === session.id ? 'text-blue-500' : ''}`} />
+                    <div className="flex-1 pr-4">
+                      <h3 className={`font-medium mb-1 line-clamp-2 ${selectedSessionId === session.id ? 'text-blue-800 dark:text-blue-300' : 'text-slate-800 dark:text-slate-200'}`}>
+                        {session.title || "Pesquisa sem título"}
+                      </h3>
+                      <div className="flex items-center mt-2">
+                         <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                          {formatDate(session.created_at)}
+                         </span>
+                      </div>
                     </div>
-                  </button>
+                    
+                    <div className="flex flex-col items-center gap-2">
+                        <button 
+                            onClick={(e) => handleDeleteSession(e, session.id)}
+                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                            title="Eliminar registo"
+                        >
+                            <Trash2 size={16} />
+                        </button>
+                        <ChevronRight size={16} className={`text-slate-300 dark:text-slate-600 group-hover:text-blue-400 transition-colors ${selectedSessionId === session.id ? 'text-blue-500' : ''}`} />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Área de Detalhes */}
-          <div className="lg:col-span-2">
+          {/* Área de Detalhes - Full Width on Print */}
+          <div className="lg:col-span-2 details-history">
             {selectedSessionId ? (
               loadingMessages ? (
                 <div className="bg-white dark:bg-slate-950 rounded-2xl p-12 flex flex-col items-center justify-center shadow-sm border border-slate-200 dark:border-slate-800">
@@ -160,7 +206,7 @@ const History: React.FC = () => {
                    {sessionMessages.map((msg, idx) => (
                      <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                        {msg.role === 'user' ? (
-                         <div className="bg-blue-600 text-white px-6 py-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg shadow-blue-600/10">
+                         <div className="bg-blue-600 text-white px-6 py-4 rounded-2xl rounded-tr-none max-w-[80%] shadow-lg shadow-blue-600/10 no-print">
                            <p className="font-medium">{msg.content}</p>
                          </div>
                        ) : (
